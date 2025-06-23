@@ -3,11 +3,13 @@
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import {api} from '@/services/api';
+import { api } from '@/services/api';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Card from '@/components/Card';
+import { toast } from 'react-toastify';
+import { useAuth } from '@/context/AuthContext';
 
 const schema = yup.object({
   email: yup.string().email().required(),
@@ -15,17 +17,20 @@ const schema = yup.object({
 });
 
 export default function LoginPage() {
+  const { login } = useAuth();
   const router = useRouter();
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
 
   const onSubmit = async (data: any) => {
     try {
       const res = await api.post('/login', data);
-       localStorage.setItem('token', res.data.token);
+      localStorage.setItem('token', res.data.token);
       Cookies.set('token', res.data.token);
+      login(res.data.token);
       router.push('/dashboard');
+      toast.success('Logged In');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Login failed');
+      toast.error(err.response?.data?.message || 'Login failed');
     }
   };
 

@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '@/services/api';
 import Select from 'react-select';
-import { useRouter } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
+import { toast } from 'react-toastify';
 
 const ProfilePage = () => {
   useAuthRedirect();
@@ -116,9 +116,9 @@ const ProfilePage = () => {
       });
 
       setDirty(false);
-      alert('Profile updated successfully');
+      toast.success('Profile updated successfully');
     } catch (err) {
-      alert('Update failed');
+      toast.error('Update failed');
     }
   };
 

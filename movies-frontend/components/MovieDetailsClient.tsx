@@ -1,9 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { api } from '@/services/api';
+import { toast } from 'react-toastify';
+import { getRatings } from '@/services/movieService';
 
 interface MovieDetailsClientProps {
   movie: {
@@ -17,6 +18,7 @@ interface MovieDetailsClientProps {
 }
 
 const MovieDetailsClient = ({ movie }: MovieDetailsClientProps) => {
+  const [userRating, setUserRating] = useState<number | null>(null);
   const router = useRouter();
   const [rating, setRating] = useState(0);
   const handleRatingSubmit = async () => {
@@ -33,13 +35,32 @@ const MovieDetailsClient = ({ movie }: MovieDetailsClientProps) => {
           },
         }
       );
-      alert('Rated successfully');
+      toast.success('Rated successfully');
+      setUserRating(rating);
     } catch (err) {
       console.error(err);
-      alert('Failed to submit rating');
+      toast.error('Failed to submit rating');
     }
   };
+  useEffect(() => {
+    const fetchUserRating = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
 
+      try {
+        const res = await getRatings(token);
+        const rated = res.ratings[movie.id];
+        if (rated) {
+          setUserRating(rated);
+          setRating(rated);
+        }
+      } catch (err) {
+        console.error('Failed to fetch user rating:', err);
+      }
+    };
+
+    fetchUserRating();
+  }, [movie.id]);
   return (
     <div className="p-8">
       <button
@@ -63,7 +84,11 @@ const MovieDetailsClient = ({ movie }: MovieDetailsClientProps) => {
           <p className="mb-2 text-black"><strong>Rating:</strong> {movie.vote_average}</p>
           <p className="text-gray-700 mb-4">{movie.overview}</p>
 
-          <p className="mb-2 font-medium text-black">Rate this Movie:</p>
+          <p className="mb-2 font-medium text-black">
+            {userRating
+              ? `You rated this movie: ${userRating}★`
+              : 'Rate this Movie:'}
+          </p>
           <div className="flex gap-2 mb-4">
             {[1, 2, 3, 4, 5].map((star) => (
               <button

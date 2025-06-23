@@ -20,7 +20,14 @@ export const getMovieById = async (id: string) => {
   const res = await api.get(`/movies/${id}`);
   return res.data;
 };
-
+export const getRatings = async (token: any) => {
+  const res = await api.get(`/ratings`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
+};
 export const getRecommendedMovies =  async (userId: string, token: any) => {
    const res = await microserviceApi.get(`/recommendations/${userId}`, {
       headers: {

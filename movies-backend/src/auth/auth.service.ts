@@ -22,6 +22,15 @@ export class AuthService {
     if (!user) throw new Error('User not found');
     return user;
   }
+
+  async getRatings(userId: string) {
+    const user = await this.userModel.findById(userId).select('movieRatings');
+    if (!user) throw new Error('User not found');
+    const ratings = user.movieRatings ?? new Map<string, number>();
+    const ratingsObj = Object.fromEntries(ratings);
+    return { userId, ratings: ratingsObj };
+  }
+
   async signup(dto: SignupDto) {
     const existing = await this.userModel.findOne({ email: dto.email });
     if (existing) throw new ConflictException('Email already registered');
@@ -68,7 +77,7 @@ export class AuthService {
       user.movieRatings = new Map<string, number>();
     }
 
-    user.movieRatings.set(dto.movieId, dto.rating);
+    user.movieRatings.set(String(dto.movieId), dto.rating);
     await user.save();
     return { message: `Rated movie ${dto.movieId} with ${dto.rating} stars` };
   }

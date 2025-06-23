@@ -1,5 +1,6 @@
 'use client';
 
+import { useAuth } from '@/context/AuthContext';
 import { api } from '@/services/api';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -7,6 +8,7 @@ import { useState, useEffect, useRef } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 
 const Navbar = () => {
+  const { user, isAuthenticated, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profile, setProfile] = useState({
     name: '',
@@ -18,13 +20,6 @@ const Navbar = () => {
   const toggleDropdown = () => {
     setDropdownOpen((prev) => !prev);
   };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    router.push('/');
-  };
-
   const fetchProfile = async () => {
     try {
       const res = await api.get('/me', {
@@ -60,7 +55,7 @@ const Navbar = () => {
         MovieApp
       </Link>
 
-      <div className="relative" ref={dropdownRef}>
+      {isAuthenticated && user && (<div className="relative" ref={dropdownRef}>
         <button
           onClick={toggleDropdown}
           className="text-gray-600 hover:text-black focus:outline-none"
@@ -90,7 +85,7 @@ const Navbar = () => {
               Profile
             </Link>
             <button
-              onClick={handleLogout}
+              onClick={logout}
               className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
             >
               Logout
@@ -98,6 +93,7 @@ const Navbar = () => {
           </div>
         )}
       </div>
+      )}
     </nav>
   );
 };

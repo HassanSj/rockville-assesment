@@ -59,7 +59,11 @@ export class AuthController {
   getProfile(@Request() req) {
     return this.authService.getProfile(req.user.sub);
   }
-
+  @UseGuards(JwtAuthGuard)
+  @Get('ratings')
+  getRatings(@Request() req) {
+    return this.authService.getRatings(req.user.sub);
+  }
   @UseGuards(JwtAuthGuard)
   @Patch('me')
   updateProfile(@Request() req, @Body() dto: UpdateProfileDto) {

@@ -7,6 +7,8 @@ import { api } from '@/services/api';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/Card';
+import { toast } from 'react-toastify';
+import { useAuth } from '@/context/AuthContext';
 
 const schema = yup.object({
   email: yup.string().email().required('Email is required'),
@@ -15,6 +17,7 @@ const schema = yup.object({
 });
 
 export default function SignupPage() {
+  const { signup } = useAuth();
   const router = useRouter();
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
 
@@ -23,9 +26,11 @@ export default function SignupPage() {
       const res = await api.post('/signup', data);
       localStorage.setItem('token', res.data.token);
       Cookies.set('token', res.data.token);
+      signup(res.data.token);
       router.push('/dashboard');
+      toast.success('Successfully signed up');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Signup failed');
+      toast.error(err.response?.data?.message || 'Signup failed');
     }
   };
 
