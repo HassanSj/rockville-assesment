@@ -4,16 +4,16 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const url = request.nextUrl.clone();
 
-  const publicPaths = ['/', '/login', '/signup'];
+  const publicPaths = ['/login', '/signup'];
   const isPublic = publicPaths.includes(url.pathname);
 
-  if (isPublic && token) {
-    url.pathname = '/dashboard';
+  if (!token && !isPublic) {
+    url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
-  if (!isPublic && !token) {
-    url.pathname = '/login';
+  if (token && isPublic) {
+    url.pathname = '/dashboard';
     return NextResponse.redirect(url);
   }
 
@@ -21,5 +21,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/login', '/signup', '/dashboard/:path*'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
 };

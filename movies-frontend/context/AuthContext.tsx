@@ -20,9 +20,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
-  login: () => {},
-  signup: () => {},
-  logout: () => {},
+  login: () => { },
+  signup: () => { },
+  logout: () => { },
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -42,12 +42,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch {
       setUser(null);
       setIsAuthenticated(false);
+      router.replace('/login');
     }
   };
 
   useEffect(() => {
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const token = localStorage.getItem('token');
+      const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
+
+      if (!token && !isLoginPage) {
+        setUser(null);
+        setIsAuthenticated(false);
+        router.replace('/login');
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [router]);
+
 
   const login = (token: string) => {
     localStorage.setItem('token', token);
@@ -66,7 +83,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     setUser(null);
     setIsAuthenticated(false);
-    router.push('/');
+    router.push('/login');
   };
 
   return (

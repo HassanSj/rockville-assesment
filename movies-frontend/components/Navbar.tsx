@@ -36,8 +36,11 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    if (isAuthenticated && localStorage.getItem('token')) {
+      fetchProfile();
+    }
+  }, [isAuthenticated]);
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import Card from '@/components/Card';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
 
 const schema = yup.object({
   email: yup.string().email().required('Email is required'),
@@ -49,6 +50,10 @@ export default function SignupPage() {
         <button type="submit" className="bg-purple-600 text-white w-full py-2 rounded hover:bg-purple-700 transition">
           Sign Up
         </button>
+        <p className="text-center text-sm text-black">
+          Already have an account?{' '}
+          <Link href="/login" className="text-indigo-600 hover:underline">Log In</Link>
+        </p>
       </form>
     </Card>
   );
